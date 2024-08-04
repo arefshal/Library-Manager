@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
     // MARK: - Properties
 
     let categories = ["Scientific", "Novel", "Historical", "Others"]
@@ -34,10 +34,12 @@ class ViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
     }
+
     // MARK: - UI Setup
 
     /// Setup the user interface elements
     private func setupUI() {
+        
         setupTableView()
         setupInputFields()
         setupCategoryButton()
@@ -47,8 +49,10 @@ class ViewController: UIViewController {
         setupFilterPickerView()
         setupConstraints()
     }
+
     /// Setup the Table View
     private func setupTableView() {
+        
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -56,8 +60,10 @@ class ViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
         view.addSubview(tableView)
     }
+
     /// Setup the input fields
     private func setupInputFields() {
+        
         titleTextField = UITextField()
         titleTextField.placeholder = "Title"
         titleTextField.borderStyle = .roundedRect
@@ -73,6 +79,7 @@ class ViewController: UIViewController {
 
     /// Setup category button
     private func setupCategoryButton() {
+        
         categoryButton = UIButton(type: .system)
         categoryButton.setTitle("Select Category", for: .normal)
         categoryButton.addTarget(self, action: #selector(showCategoryPicker), for: .touchUpInside)
@@ -82,6 +89,7 @@ class ViewController: UIViewController {
 
     /// Setup add button
     private func setupAddButton() {
+        
         addButton = UIButton(type: .system)
         addButton.setTitle("Add Book", for: .normal)
         addButton.addTarget(self, action: #selector(addBook), for: .touchUpInside)
@@ -91,6 +99,7 @@ class ViewController: UIViewController {
 
     /// Setup filter button
     private func setupFilterButton() {
+        
         filterButton = UIButton(type: .system)
         filterButton.setTitle("Filter Books", for: .normal)
         filterButton.addTarget(self, action: #selector(showFilterPicker), for: .touchUpInside)
@@ -100,6 +109,7 @@ class ViewController: UIViewController {
 
     /// Setup picker view
     private func setupPickerView() {
+        
         pickerView = UIPickerView()
         pickerView.backgroundColor = .systemBlue
         pickerView.delegate = self
@@ -111,6 +121,7 @@ class ViewController: UIViewController {
 
     /// Setup filter picker view
     private func setupFilterPickerView() {
+        
         filterPickerView = UIPickerView()
         filterPickerView.backgroundColor = .systemGreen
         filterPickerView.delegate = self
@@ -122,6 +133,7 @@ class ViewController: UIViewController {
 
     /// Setup all constraints
     private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -159,27 +171,33 @@ class ViewController: UIViewController {
             filterPickerView.heightAnchor.constraint(equalToConstant: 200),
         ])
     }
+
     // MARK: - Actions
 
     /// Show category picker
     @objc func showCategoryPicker() {
+        
         pickerView.isHidden = false
     }
 
     /// Show filter picker
     @objc func showFilterPicker() {
+        
         filterPickerView.isHidden = false
     }
 
     /// Add a new book to the list
     @objc func addBook() {
+        
         guard let title = titleTextField.text, !title.isEmpty,
               let author = authorTextField.text, !author.isEmpty,
               !selectedCategory.isEmpty else {
             // Show an error if fields are empty
+            
             let alert = UIAlertController(title: "Error", message: "Please fill all fields", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(alert, animated: true, completion: nil)
+            
             return
         }
 
@@ -196,30 +214,37 @@ class ViewController: UIViewController {
 
     /// Apply filter based on the selected category
     func applyFilter() {
+        
         if selectedFilterCategory == "All" {
             filteredBooks = books
         } else {
+            
             filteredBooks = books.filter { $0.category == selectedFilterCategory }
         }
         tableView.reloadData()
     }
+
     // MARK: - UITableViewDataSource
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return filteredBooks.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
         let book = filteredBooks[indexPath.row]
         cell.textLabel?.text = book.title
         cell.detailTextLabel?.text = "\(book.author) - \(book.category)"
         return cell
     }
+
     // MARK: - UITableViewDelegate
 
     /// Handle swipe-to-delete action
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        
         if editingStyle == .delete {
             // Remove the book from the data source
             let bookToRemove = filteredBooks[indexPath.row]
@@ -232,6 +257,7 @@ class ViewController: UIViewController {
 
     /// Handle row selection
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedBook = filteredBooks[indexPath.row]
         showBookDetails(book: selectedBook)
@@ -253,6 +279,7 @@ class ViewController: UIViewController {
 
         present(alert, animated: true, completion: nil)
     }
+
     // MARK: - UIPickerViewDataSource
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -270,6 +297,7 @@ class ViewController: UIViewController {
     // MARK: - UIPickerViewDelegate
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        
         if pickerView == self.pickerView {
             return categories[row]
         } else {
@@ -278,6 +306,7 @@ class ViewController: UIViewController {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        
         if pickerView == self.pickerView {
             selectedCategory = categories[row]
             categoryButton.setTitle(selectedCategory, for: .normal)
@@ -291,6 +320,6 @@ class ViewController: UIViewController {
     }
 }
 
-    
-    
+#Preview {
+    ViewController()
 }
