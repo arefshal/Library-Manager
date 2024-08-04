@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UISearchBarDelegate {
     // MARK: - Properties
 
     let categories = ["Scientific", "Novel", "Historical", "Others"]
@@ -15,9 +15,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var books: [Book] = []
     var filteredBooks: [Book] = []
     var selectedFilterCategory: String = "All"
+    var searchText: String = ""
 
     // MARK: - UI Elements
 
+    var searchBar: UISearchBar!
     var tableView: UITableView!
     var titleTextField: UITextField!
     var authorTextField: UITextField!
@@ -41,6 +43,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private func setupUI() {
         
         setupTableView()
+        setupSearchBar()
         setupInputFields()
         setupCategoryButton()
         setupAddButton()
@@ -50,7 +53,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         setupConstraints()
     }
 
-    /// Setup the Table View
+    private func setupSearchBar() {
+        searchBar = UISearchBar()
+        searchBar.placeholder = "Search by author"
+        searchBar.delegate = self
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(searchBar)
+    }
+
     private func setupTableView() {
         
         tableView = UITableView()
@@ -58,6 +68,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
         view.addSubview(tableView)
     }
 
@@ -135,7 +147,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private func setupConstraints() {
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -20),
@@ -174,26 +190,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     // MARK: - Actions
 
-    /// Show category picker
     @objc func showCategoryPicker() {
         
         pickerView.isHidden = false
     }
 
-    /// Show filter picker
     @objc func showFilterPicker() {
         
         filterPickerView.isHidden = false
     }
 
-    /// Add a new book to the list
     @objc func addBook() {
         
         guard let title = titleTextField.text, !title.isEmpty,
               let author = authorTextField.text, !author.isEmpty,
               !selectedCategory.isEmpty else {
-            // Show an error if fields are empty
-            
             let alert = UIAlertController(title: "Error", message: "Please fill all fields", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(alert, animated: true, completion: nil)
@@ -214,12 +225,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     /// Apply filter based on the selected category
     func applyFilter() {
-        
-        if selectedFilterCategory == "All" {
-            filteredBooks = books
-        } else {
-            
-            filteredBooks = books.filter { $0.category == selectedFilterCategory }
+        filteredBooks = books.filter { book in
+            let categoryMatch = selectedFilterCategory == "All" || book.category == selectedFilterCategory
+            let authorMatch = searchText.isEmpty || book.author.lowercased().contains(searchText.lowercased())
+            return categoryMatch && authorMatch
         }
         tableView.reloadData()
     }
@@ -235,8 +244,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
         let book = filteredBooks[indexPath.row]
-        cell.textLabel?.text = book.title
-        cell.detailTextLabel?.text = "\(book.author) - \(book.category)"
+
+        cell.textLabel?.text = "📚 \(book.title) by \(book.author)"
+
         return cell
     }
 
@@ -265,6 +275,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     /// Show book details in an alert
     func showBookDetails(book: Book) {
+        
         let alert = UIAlertController(title: "Book Details", message: nil, preferredStyle: .alert)
 
         let detailsMessage = """
@@ -317,6 +328,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             filterPickerView.isHidden = true
             applyFilter()
         }
+    }
+
+    // MARK: - UISearchBarDelegate
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.searchText = searchText
+        applyFilter()
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
 }
 
