@@ -26,12 +26,27 @@ class ViewController: UIViewController {
     var pickerView: UIPickerView!
     var filterButton: UIButton!
     var filterPickerView: UIPickerView!
-    
+
+    // MARK: - Lifecycle Methods
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .white
+        setupUI()
     }
+    // MARK: - UI Setup
 
-
+    /// Setup the user interface elements
+    private func setupUI() {
+        setupTableView()
+        setupInputFields()
+        setupCategoryButton()
+        setupAddButton()
+        setupFilterButton()
+        setupPickerView()
+        setupFilterPickerView()
+        setupConstraints()
+    }
+    
 }
 
