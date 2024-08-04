@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UISearchBarDelegate {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UISearchBarDelegate, UITextFieldDelegate {
     // MARK: - Properties
 
     let categories = ["Scientific", "Novel", "Historical", "Others"]
@@ -35,6 +35,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        setupKeyboardObservers()
+        addTapGestureToDismissKeyboard()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        removeKeyboardObservers()
     }
 
     // MARK: - UI Setup
@@ -79,13 +86,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         titleTextField = UITextField()
         titleTextField.placeholder = "Title"
         titleTextField.borderStyle = .roundedRect
+        titleTextField.returnKeyType = .next
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        titleTextField.delegate = self
         view.addSubview(titleTextField)
 
         authorTextField = UITextField()
         authorTextField.placeholder = "Author"
         authorTextField.borderStyle = .roundedRect
+        authorTextField.returnKeyType = .done
         authorTextField.translatesAutoresizingMaskIntoConstraints = false
+        authorTextField.delegate = self
         view.addSubview(authorTextField)
     }
 
@@ -225,9 +236,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     /// Apply filter based on the selected category
     func applyFilter() {
+        
         filteredBooks = books.filter { book in
             let categoryMatch = selectedFilterCategory == "All" || book.category == selectedFilterCategory
             let authorMatch = searchText.isEmpty || book.author.lowercased().contains(searchText.lowercased())
+            
             return categoryMatch && authorMatch
         }
         tableView.reloadData()
@@ -259,6 +272,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // Remove the book from the data source
             let bookToRemove = filteredBooks[indexPath.row]
             if let index = books.firstIndex(where: { $0.title == bookToRemove.title && $0.author == bookToRemove.author && $0.category == bookToRemove.category }) {
+                
                 books.remove(at: index)
             }
             applyFilter()
@@ -340,8 +354,54 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
+
+    // MARK: - Keyboard Handling
+
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    @objc private func keyboardWillShow(notification: Notification) {
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+            let keyboardHeight = keyboardFrame.height
+            let bottomSpace = view.frame.height - (filterButton.frame.origin.y + filterButton.frame.height)
+            view.frame.origin.y = bottomSpace - keyboardHeight
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: Notification) {
+        view.frame.origin.y = 0
+    }
+
+    private func addTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    // MARK: - UITextFieldDelegate
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == titleTextField {
+            authorTextField.becomeFirstResponder()
+        } else if textField == authorTextField {
+            textField.resignFirstResponder()
+        }
+        return true
+    }
 }
 
 #Preview {
     ViewController()
 }
+
