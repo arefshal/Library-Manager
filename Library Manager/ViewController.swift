@@ -159,6 +159,50 @@ class ViewController: UIViewController {
             filterPickerView.heightAnchor.constraint(equalToConstant: 200),
         ])
     }
+    // MARK: - Actions
+
+    /// Show category picker
+    @objc func showCategoryPicker() {
+        pickerView.isHidden = false
+    }
+
+    /// Show filter picker
+    @objc func showFilterPicker() {
+        filterPickerView.isHidden = false
+    }
+
+    /// Add a new book to the list
+    @objc func addBook() {
+        guard let title = titleTextField.text, !title.isEmpty,
+              let author = authorTextField.text, !author.isEmpty,
+              !selectedCategory.isEmpty else {
+            // Show an error if fields are empty
+            let alert = UIAlertController(title: "Error", message: "Please fill all fields", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+
+        let newBook = Book(title: title, author: author, category: selectedCategory)
+        books.append(newBook)
+        applyFilter()
+
+        // Clear fields after adding
+        titleTextField.text = ""
+        authorTextField.text = ""
+        categoryButton.setTitle("Select Category", for: .normal)
+        selectedCategory = ""
+    }
+
+    /// Apply filter based on the selected category
+    func applyFilter() {
+        if selectedFilterCategory == "All" {
+            filteredBooks = books
+        } else {
+            filteredBooks = books.filter { $0.category == selectedFilterCategory }
+        }
+        tableView.reloadData()
+    }
 
     
     
