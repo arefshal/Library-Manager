@@ -203,7 +203,19 @@ class ViewController: UIViewController {
         }
         tableView.reloadData()
     }
+    // MARK: - UITableViewDataSource
 
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filteredBooks.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
+        let book = filteredBooks[indexPath.row]
+        cell.textLabel?.text = book.title
+        cell.detailTextLabel?.text = "\(book.author) - \(book.category)"
+        return cell
+    }
     
     
 }
