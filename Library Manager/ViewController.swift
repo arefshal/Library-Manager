@@ -216,6 +216,44 @@ class ViewController: UIViewController {
         cell.detailTextLabel?.text = "\(book.author) - \(book.category)"
         return cell
     }
+    // MARK: - UITableViewDelegate
+
+    /// Handle swipe-to-delete action
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Remove the book from the data source
+            let bookToRemove = filteredBooks[indexPath.row]
+            if let index = books.firstIndex(where: { $0.title == bookToRemove.title && $0.author == bookToRemove.author && $0.category == bookToRemove.category }) {
+                books.remove(at: index)
+            }
+            applyFilter()
+        }
+    }
+
+    /// Handle row selection
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let selectedBook = filteredBooks[indexPath.row]
+        showBookDetails(book: selectedBook)
+    }
+
+    /// Show book details in an alert
+    func showBookDetails(book: Book) {
+        let alert = UIAlertController(title: "Book Details", message: nil, preferredStyle: .alert)
+
+        let detailsMessage = """
+        Title: \(book.title)
+        Author: \(book.author)
+        Category: \(book.category)
+        """
+
+        alert.message = detailsMessage
+
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+
+        present(alert, animated: true, completion: nil)
+    }
+
     
     
 }
