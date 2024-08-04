@@ -253,8 +253,44 @@ class ViewController: UIViewController {
 
         present(alert, animated: true, completion: nil)
     }
+    // MARK: - UIPickerViewDataSource
+
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if pickerView == self.pickerView {
+            return categories.count
+        } else {
+            return categories.count + 1
+        }
+    }
+
+    // MARK: - UIPickerViewDelegate
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if pickerView == self.pickerView {
+            return categories[row]
+        } else {
+            return row == 0 ? "All" : categories[row - 1]
+        }
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if pickerView == self.pickerView {
+            selectedCategory = categories[row]
+            categoryButton.setTitle(selectedCategory, for: .normal)
+            pickerView.isHidden = true
+        } else {
+            selectedFilterCategory = row == 0 ? "All" : categories[row - 1]
+            filterButton.setTitle("Filter: \(selectedFilterCategory)", for: .normal)
+            filterPickerView.isHidden = true
+            applyFilter()
+        }
+    }
+}
 
     
     
 }
-
