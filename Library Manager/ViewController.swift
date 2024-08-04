@@ -47,6 +47,120 @@ class ViewController: UIViewController {
         setupFilterPickerView()
         setupConstraints()
     }
+    /// Setup the Table View
+    private func setupTableView() {
+        tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
+        view.addSubview(tableView)
+    }
+    /// Setup the input fields
+    private func setupInputFields() {
+        titleTextField = UITextField()
+        titleTextField.placeholder = "Title"
+        titleTextField.borderStyle = .roundedRect
+        titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(titleTextField)
+
+        authorTextField = UITextField()
+        authorTextField.placeholder = "Author"
+        authorTextField.borderStyle = .roundedRect
+        authorTextField.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(authorTextField)
+    }
+
+    /// Setup category button
+    private func setupCategoryButton() {
+        categoryButton = UIButton(type: .system)
+        categoryButton.setTitle("Select Category", for: .normal)
+        categoryButton.addTarget(self, action: #selector(showCategoryPicker), for: .touchUpInside)
+        categoryButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(categoryButton)
+    }
+
+    /// Setup add button
+    private func setupAddButton() {
+        addButton = UIButton(type: .system)
+        addButton.setTitle("Add Book", for: .normal)
+        addButton.addTarget(self, action: #selector(addBook), for: .touchUpInside)
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(addButton)
+    }
+
+    /// Setup filter button
+    private func setupFilterButton() {
+        filterButton = UIButton(type: .system)
+        filterButton.setTitle("Filter Books", for: .normal)
+        filterButton.addTarget(self, action: #selector(showFilterPicker), for: .touchUpInside)
+        filterButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filterButton)
+    }
+
+    /// Setup picker view
+    private func setupPickerView() {
+        pickerView = UIPickerView()
+        pickerView.backgroundColor = .systemBlue
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        pickerView.isHidden = true
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(pickerView)
+    }
+
+    /// Setup filter picker view
+    private func setupFilterPickerView() {
+        filterPickerView = UIPickerView()
+        filterPickerView.backgroundColor = .systemGreen
+        filterPickerView.delegate = self
+        filterPickerView.dataSource = self
+        filterPickerView.isHidden = true
+        filterPickerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filterPickerView)
+    }
+
+    /// Setup all constraints
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -20),
+
+            titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            titleTextField.bottomAnchor.constraint(equalTo: authorTextField.topAnchor, constant: -10),
+
+            authorTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            authorTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            authorTextField.bottomAnchor.constraint(equalTo: categoryButton.topAnchor, constant: -10),
+
+            categoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            categoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            categoryButton.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -10),
+
+            addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            addButton.bottomAnchor.constraint(equalTo: filterButton.topAnchor, constant: -10),
+
+            filterButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            filterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+
+            pickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pickerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            pickerView.heightAnchor.constraint(equalToConstant: 200),
+
+            filterPickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            filterPickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            filterPickerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            filterPickerView.heightAnchor.constraint(equalToConstant: 200),
+        ])
+    }
+
+    
     
 }
 
