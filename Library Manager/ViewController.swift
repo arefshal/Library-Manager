@@ -247,7 +247,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     // MARK: - UITableViewDataSource
+    // This section of code was implemented using a tutorial from Medium
+    // Source: https://paigeshin1991.medium.com/uikit-tableview-implement-add-edit-move-features-in-the-easiest-possible-way-400b3f278ddd
 
+    /// Handle swipe-to-delete action
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return filteredBooks.count
@@ -264,6 +267,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     // MARK: - UITableViewDelegate
+    // Source: https://paigeshin1991.medium.com/uikit-tableview-implement-add-edit-move-features-in-the-easiest-possible-way-400b3f278ddd
 
     /// Handle swipe-to-delete action
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -356,7 +360,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     // MARK: - Keyboard Handling
-
+    // This section of code was generated with the assistance of GPT
+    // Purpose: Handle keyboard appearance and disappearance to avoid UI issues
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
