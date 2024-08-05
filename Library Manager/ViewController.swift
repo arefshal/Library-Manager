@@ -28,10 +28,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var pickerView: UIPickerView!
     var filterButton: UIButton!
     var filterPickerView: UIPickerView!
+    var filterButtonBottomConstraint: NSLayoutConstraint?
 
     // MARK: - Lifecycle Methods
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
@@ -49,8 +51,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     /// Setup the user interface elements
     private func setupUI() {
         
-        setupTableView()
         setupSearchBar()
+        setupTableView()
         setupInputFields()
         setupCategoryButton()
         setupAddButton()
@@ -79,6 +81,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.estimatedRowHeight = 60
         view.addSubview(tableView)
     }
+    
+    // This section of code was generated with the assistance of GPT
+    /// This function is called when a text field begins editing.
+    /// It ensures that the text field remains visible when the keyboard appears.
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let bottomOfTextField = textField.convert(textField.bounds, to: self.view).maxY
+        let topOfKeyboard = self.view.frame.height - (filterButtonBottomConstraint?.constant ?? 0)
+        
+        if bottomOfTextField > topOfKeyboard {
+            let offsetY = bottomOfTextField - topOfKeyboard + 10 // 10 is extra padding
+            self.view.frame.origin.y -= offsetY
+        }
+    }
+
 
     /// Setup the input fields
     private func setupInputFields() {
@@ -156,8 +172,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     /// Setup all constraints
     private func setupConstraints() {
+        var constraints = [NSLayoutConstraint]()
         
-        NSLayoutConstraint.activate([
+        constraints += [
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -185,7 +202,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
             filterButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             filterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
 
             pickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             pickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -195,11 +211,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             filterPickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             filterPickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             filterPickerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            filterPickerView.heightAnchor.constraint(equalToConstant: 200),
-        ])
+            filterPickerView.heightAnchor.constraint(equalToConstant: 200)
+        ]
+
+        // Create and store the bottom constraint for the filter button
+        filterButtonBottomConstraint = filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        constraints.append(filterButtonBottomConstraint!)
+
+        // Activate all constraints
+        NSLayoutConstraint.activate(constraints)
     }
 
     // MARK: - Actions
+    // This section of code  was generated with the assistance of GPT
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.view.frame.origin.y = 0
+    }
 
     @objc func showCategoryPicker() {
         
@@ -360,7 +387,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     // MARK: - Keyboard Handling
-    // This section of code was generated with the assistance of GPT
+    // This section of code (Keyboard Handling) was generated with the assistance of GPT
     // Purpose: Handle keyboard appearance and disappearance to avoid UI issues
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -373,15 +400,28 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     @objc private func keyboardWillShow(notification: Notification) {
-        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            let keyboardHeight = keyboardFrame.height
-            let bottomSpace = view.frame.height - (filterButton.frame.origin.y + filterButton.frame.height)
-            view.frame.origin.y = bottomSpace - keyboardHeight
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            
+            // Adjust the bottom constraint
+            filterButtonBottomConstraint?.constant = -keyboardHeight - 20
+
+            // Animate the change
+            UIView.animate(withDuration: 0.3) {
+                self.view.layoutIfNeeded()
+            }
         }
     }
 
     @objc private func keyboardWillHide(notification: Notification) {
-        view.frame.origin.y = 0
+        // Reset the bottom constraint
+        filterButtonBottomConstraint?.constant = -20
+
+        // Animate the change
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     private func addTapGestureToDismissKeyboard() {
